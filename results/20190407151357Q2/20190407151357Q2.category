@@ -1,0 +1,3 @@
+docId,primary,primary_count,threat_result,secondary
+1, Primary: Threat, Count: 2 , Threat: 1
+2, Primary: Threat, Count: 1 , Threat: 1
