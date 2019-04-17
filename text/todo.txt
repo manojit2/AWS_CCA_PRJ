@@ -1,0 +1,54 @@
+Reference
+    https://github.com/nhirakawa/BM25/tree/master/src
+
+HTML Site
+    Finish HTML website
+    Change front end to allow maintenance of keywords
+    change front end to allow maintenance of article filters
+    change front end to allow maintenance of keyword weights
+    Writeup directions on how to use application (Dave)
+    Figure out how to run python programs from website button (Dave)
+    Consider building some visualization (Ayan)
+    Results page should show query and weights applied
+
+Ranker App
+    look at adjusting the formula to not punish TF so much
+    Look into computing P/R for the application
+    how do we prove it works - against a set known population, cranfield like
+    `1 - 3
+     2  - 5
+     3   6.5
+     4  7.5
+
+Scrapper App (on hold)
+    Scrape comments to JSON (one file per article)
+    Scrape articles to JSON (one per file)
+
+
+App Config
+    setup K and b as parameters
+
+Installation Files
+    build requirements.txt
+
+Presentation
+    build powerpoint
+    create spoken powerpoint component
+    multiple weights file, base = all eq 100 and then custom rankings for different types
+Multiple query files = specific terms, racial, gender, person specific
+
+website - presentation, install and how to operate website
+Website - results presentation
+Website - extra charts (option)
+
+Research paper
+    send document to TA on request
+
+
+
+output of keyword types
+
+
+optional items
+increase size of document population
+

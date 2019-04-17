@@ -1,0 +1,7 @@
+"doc_id", "bm25_score", "bm25_weighted",  "title","source", "Date" "URL", "# Comments"
+"75", 35.9, 37.84, "Woman accused of assaulting Santa Ana McDonalds manager over ketchup is arrested", "OCR", "November 28, 2018 at 7:48 am", "https://www.ocregister.com/2018/11/28/woman-accused-of-assaulting-santa-ana-mcdonalds-employee-over-ketchup-arrested/#disqus_thread"
+"10", 35.18, 36.58, "Border crossing at San Ysidro closed down for hours after migrants rush port of entry in chaotic scene", "LA Times", "NOV 26, 2018 | 3:00 AM|", "https://www.latimes.com/local/lanow/la-me-ln-border-crossing-closed-20181126-story.html"
+"100", 18.40, 26.18, "Brooklyn Rapper Tekashi 6ix9ine Arrested On Federal Racketeering Charges", "Huff Post", "11/19/2018 12:55 pm ET", "https://www.huffingtonpost.com/entry/tekashi-69-six-nine-arrested-daniel-hernandez_us_5bf2d912e4b0b84243e4a63d"
+"11", 11.95, 22.56, "At sprawling tent city for migrant teens in Texas, costs soar and staff is hired without fingerprint checks", "LA Times", "NOV 27, 2018 | 12:55 PM| TORNILLO, TEXAS, https://www.latimes.com/nation/la-na-migrant-teen-detention-camp-checks-20181127-story.html"
+"12", 10.21, 18.60, "It began as a dispute over funeral doves. It ended with Nazi memorabilia, guns and an arrest", "LA Times", "NOV 28, 2018 | 10:55 AM", "https://www.latimes.com/local/lanow/la-me-ln-todd-arrest-20181128-story.html"
+
