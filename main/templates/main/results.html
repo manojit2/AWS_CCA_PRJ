@@ -1,0 +1,28 @@
+{% extends "main/header.html" %}
+
+{% block content %}
+	<p>results</p>
+  <div class="row">
+  	<table>
+  		<tr>
+  			<th>Query ID</th>
+  			<th>Runtime</th>
+ 			<th>Query</th>
+      <th>Link</th>
+  		</tr>
+  	<div class="responsive-table container">
+  	{% for run in query_runs%}
+  
+        <tr>
+        	<td>{{run.id}} </td>
+        	<td>{{run.query_runtime}}</td>
+        	<td>{{run.query_text}}</td>
+          <td><a href="https://twitter.com/WSJ/status/1117880290213597185">Link</a></td>
+		</tr>
+        {% endfor %}
+     </div>
+  	</table>
+
+  </div>
+
+{% endblock %}

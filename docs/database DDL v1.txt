@@ -1,0 +1,181 @@
+create table articles
+(
+	article_id integer not null
+		constraint articles_pk
+			primary key autoincrement,
+	title text,
+	source_id integer,
+	source_type_id integer,
+	profile_id integer,
+	source_url text,
+	article_raw text,
+	author text
+);
+
+create unique index articles_article_id_uindex
+	on articles (article_id);
+
+create table comments
+(
+	comment_id integer not null
+		constraint comments_pk
+			primary key autoincrement,
+	article_id integer,
+	profile_id integer,
+	source_id integer,
+	source_type_id integer,
+	comment_raw text,
+	parent_comment_id integer
+);
+
+create unique index comments_comment_id_uindex
+	on comments (comment_id);
+
+create table keyword_categories
+(
+	keyword_category_id integer not null
+		constraint keyword_categories_pk
+			primary key autoincrement,
+	category text not null,
+	system integer default false,
+	owner integer,
+	public integer default false
+);
+
+create unique index keyword_categories_keyword_category_id_uindex
+	on keyword_categories (keyword_category_id);
+
+create table keywords_master
+(
+	keyword_id integer not null
+		constraint keywords_master_pk
+			primary key autoincrement,
+	keyword text not null,
+	system integer default false,
+	owner integer,
+	keyword_category_id integer,
+	default_weight integer default 100 not null,
+	public integer default true
+);
+
+create unique index keywords_master_keyword_id_uindex
+	on keywords_master (keyword_id);
+
+create unique index keywords_master_keyword_uindex
+	on keywords_master (keyword);
+
+create table profiles
+(
+	profile_id integer not null
+		constraint profiles_pk
+			primary key autoincrement,
+	profile text,
+	source_id integer
+);
+
+create unique index profiles_profile_id_uindex
+	on profiles (profile_id);
+
+create table queries
+(
+	query_id integer not null
+		constraint queries_pk
+			primary key autoincrement,
+	system integer default false,
+	owner integer,
+	public integer default true,
+	word_count integer
+);
+
+create unique index queries_query_id_uindex
+	on queries (query_id);
+
+create table query_runs
+(
+	query_run_id integer not null
+		constraint query_runs_pk
+			primary key autoincrement,
+	user_id integer,
+	query_id integer,
+	query_text text,
+	query_runtime text
+);
+
+create unique index query_runs_query_run_id_uindex
+	on query_runs (query_run_id);
+
+create table query_words
+(
+	query_words_id integer not null
+		constraint query_words_pk
+			primary key autoincrement,
+	query_id integer,
+	keyword_id integer,
+	override_weight integer
+);
+
+create unique index query_words_query_words_id_uindex
+	on query_words (query_words_id);
+
+create table results
+(
+	result_id integer not null
+		constraint results_pk
+			primary key autoincrement,
+	query_run_id integer,
+	article_id integer,
+	rank_score integer,
+	core_score integer
+);
+
+create unique index results_result_id_uindex
+	on results (result_id);
+
+create table source
+(
+	source_id integer not null
+		constraint source_pk
+			primary key autoincrement,
+	description text not null,
+	top_uri text,
+	source_type_id integer
+);
+
+create unique index source_source_id_uindex
+	on source (source_id);
+
+create table source_types
+(
+	source_type_id integer not null
+		constraint source_types_pk
+			primary key autoincrement,
+	source_type text not null,
+	public integer default true
+);
+
+create unique index source_types_source_type_id_uindex
+	on source_types (source_type_id);
+
+create table users
+(
+	user_id integer not null
+		constraint users_pk
+			primary key autoincrement,
+	login text not null,
+	password text not null,
+	access_level integer default 0 not null,
+	disabled integer,
+	full_name text not null,
+	email text not null,
+	public integer default true
+);
+
+create unique index users_email_uindex
+	on users (email);
+
+create unique index users_login_uindex
+	on users (login);
+
+create unique index users_user_id_uindex
+	on users (user_id);
+
