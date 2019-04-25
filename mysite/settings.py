@@ -25,7 +25,7 @@ SECRET_KEY = 'absx3*zya%#4$96w7igul2na6qk^zd_ofyi!gf*4js1ev-n+t)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','ec2-52-23-184-44.compute-1.amazonaws.com']
 
 
 # Application definition
@@ -117,5 +117,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-
-STATIC_URL = '/static/'
+STATIC_ROOT = "staticfiles"
+STATIC_URL='/static/'
+#STATICFILES_DIRS = ['/home/ubuntu/AWS_CCA_PRJ/mysite/static','/home/ubuntu/env/lib/python3.6/site-packages/django/contrib/admin/static']
