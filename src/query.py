@@ -6,10 +6,13 @@ import os
 import operator
 import parse
 import sqlite3
-
+from sqlite3 import Error
+import datetime
+import collections
+import operator
 
 class QueryProcessor:
-    def __init__(self, queries, corpus, keywords, keyword_types, run_date, run_results_file, articles):
+    def __init__(self, queries, corpus, keywords, keyword_types, run_date, run_results_file, articles, db_name):
         self.queries = queries
         self.index, self.dlt = build_data_structures(corpus)
         self.keywords = keywords
@@ -18,6 +21,20 @@ class QueryProcessor:
         self.run_results_file = run_results_file
         self.file_runtime = run_date.strftime("%Y%m%d%H%M%S")  # what to use as the link base
         self.articles = articles
+        self.db_name = db_name
+
+    def build_query_short_desc(self, query):
+        query_string_short = ''  # for display in the run_results_list.txt file
+        t_count = 0
+        for term_str in query:
+            if t_count == 0:
+                query_string_short = term_str
+            elif t_count >= 1 and t_count <= 3:
+                query_string_short += ',' + term_str
+            elif t_count == 4:
+                query_string_short += '...(more)'
+            t_count += 1
+        return query_string_short
 
     def write_query_file(self, query_run_count, query, results_dir):
         """write the query used for this run"""
@@ -26,7 +43,7 @@ class QueryProcessor:
         query_string_full = ''  # for display in the query file .query
         query_result_file = results_dir + '/' + self.file_runtime + 'Q' + str(query_run_count) + '.query'
         for term_str in query:
-            print(term_str)
+            #print(term_str)
             if t_count == 0:
                 query_string_short = term_str
                 query_string_full = term_str
@@ -75,20 +92,22 @@ class QueryProcessor:
     def write_ranked_documents_file(self, results_dir, query_run_count, result):
         """write out the results of the run, docid, rank, score, title, etc"""
         ranking_result_file = results_dir + '/' + self.file_runtime + 'Q' + str(query_run_count) + '.rank'  # ranked values by doc
-        self.db_name = 'pldb.db'
+        self.db_name = '../db.sqlite3'
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute("select comment_id,comment_raw from comments")
+        c.execute("select comment_id,comment_raw from main_comments")
         data = c.fetchall()
         b_work = {}
-        for row in data:
+        for row in result:
             docid = str(row[0])
             comments = row[1].split()
-            print(docid," ",comments)
             # db_work[docid] = comments
             # self.corpus[docid] = comments
-        #print(self.corpus)
 
+        sorted_x = sorted(result.items(), key=operator.itemgetter(1))
+        sorted_x.reverse()
+        index = 0
+        j = 0
         with open(ranking_result_file, mode='w') as rf:
             rf.write('docid,ranking,score,title,source,date,URLLink\n')
             sorted_x = sorted(result.items(), key=operator.itemgetter(1))
@@ -117,6 +136,21 @@ class QueryProcessor:
             rf.close()
         return ranking_result_file
 
+    def write_ranked_documents_database(self, conn, query_run_id, k, v, rank):
+        """write out the results of the run, docid, rank, score, title, etc"""
+        result_payload = (query_run_id,v, rank, k, k )
+        try:
+            t_sql = '''INSERT INTO main_results(query_run_id_id, rank_score, ranking, article_id_id, comment_id) VALUES(?, ?, ? , ?, ?)'''
+            cur = conn.cursor()
+            cur.execute(t_sql, result_payload)
+        except Error as e:
+            print(e)
+        conn.commit()
+        return cur.lastrowid
+
+
+
+
     def update_results_file(self, results_directory, query_run_count, t_count, max_score, doc_count,query_string_short):
         """update the master list of runs used to load into D3"""
         display_runtime = self.run_date.strftime("%d %B %Y %H:%M:%S")  # what to display in the rankings master file
@@ -124,6 +158,7 @@ class QueryProcessor:
             rf.write(display_runtime+',Q' + str(query_run_count) + ',http://results2.html?'
                     +results_directory+'/'+self.file_runtime + 'Q' + str(query_run_count)+','+str(max_score)
                      +','+str(t_count) + ','+str(doc_count)+',' + query_string_short + '\n')
+
         return True
 
     def write_category_file(self, results_dir, query_run_count, doc_category_count):
@@ -162,20 +197,52 @@ class QueryProcessor:
         os.mkdir(results_dir)
         return results_dir
 
+    def create_query_run_name(self, query_run_count):
+        # create a directory for each run to store results
+        query_run_name = self.file_runtime + 'Q' + str(query_run_count)  # create the directory for output
+        return query_run_name
+
+    def write_query_run(self, conn, qr_payload):
+        try:
+            t_sql = '''INSERT INTO main_query_runs(query_text, query_run_id, query_short_name ,  query_short_desc , term_count, max_score,
+                doc_count, total_score, avg_score, query_runtime) VALUES(?, ?, ? , ?, ?, ?, ?, ?, ?,?)'''
+            cur = conn.cursor()
+            cur.execute(t_sql, qr_payload)
+        except Error as e:
+            print(e)
+        conn.commit()
+        return cur.lastrowid
+
     def create_query_short_string(self, query_run_count, query, results_dir):
         return self.write_query_file(query_run_count, query, results_dir)
 
+    def create_connection(self, db_file):
+        """Create a database connection to the SQLite database
+        param db_file: database file for database
+        return: connection object or None"""
+
+        try:
+            conn = sqlite3.connect(db_file)
+            return conn
+        except Error as e:
+            print(e)
+
+
     def run(self):
+        conn = self.create_connection(self.db_name)
         query_run_count = 1
         results = []
         for query in self.queries:
             results_dir = self.create_results_directory(query_run_count)
-            self.write_details_file_header(results_dir, query_run_count)
-            self.write_weights_file_header(results_dir, query_run_count)
+            query_run_name = self.create_query_run_name(query_run_count)
+            query_short_desc = self.build_query_short_desc(query)
+
+            #self.write_details_file_header(results_dir, query_run_count)
+            #self.write_weights_file_header(results_dir, query_run_count)
             short_query_string = self.create_query_short_string(query_run_count, query, results_dir)
             term_count = len(query)
             max_score = 0
-            result = self.run_query(query, query_run_count, results_dir)
+            result = self.run_query(query, query_run_count, results_dir, query_run_name)
             doc_count = len(result)
             sorted_x = sorted(result.items(), key=operator.itemgetter(1))
             sorted_x.reverse()
@@ -185,15 +252,54 @@ class QueryProcessor:
                 max_score = i[1]
                 break
                 index += 1
+            total_score = 0
+            avg_score = 0
+            for i in sorted_x[:100]:
+                total_score += i[1]
+            if doc_count != 0 and total_score != 0:
+                avg_score = total_score / 100
 
-            self.update_results_file(results_dir, query_run_count, term_count, max_score, doc_count, short_query_string)
-            self.write_ranked_documents_file(results_dir,query_run_count,result)
+            #  TODO: (remove) self.update_results_file(results_dir, query_run_count, term_count, max_score, doc_count, short_query_string)
+            #  TODO (remove) self.write_ranked_documents_file(results_dir,query_run_count,result)
+
+            query_time = datetime.datetime.now()
+            qr_payload = (str(query), query_run_count, query_run_name, query_short_desc, term_count, max_score,
+                          doc_count, total_score, avg_score, query_time)
+            query_run_id = self.write_query_run(conn, qr_payload)
+
+            sorted_x = sorted(result.items(), key=lambda kv: kv[1])
+            sorted_dict = collections.OrderedDict(sorted_x)
+
+            c = len(sorted_dict)
+            for k, v in sorted_dict.items():
+                self.write_ranked_documents_database(conn, query_run_id, k, v, c)
+                c -=1
+            ## TODO build a query to update after results are run
             results.append(result)
             query_run_count += 1
+        #for r in results[:100]:
+        #    print('results for Query: ', query_run_id,  r)
+        conn = self.create_connection(self.db_name)
+        sql = '''UPDATE main_results SET (url, author) = (SELECT main_articles.source_url, main_articles.author
+                      FROM main_articles WHERE main_articles.article_id = main_results.comment_id ) WHERE EXISTS (
+                   SELECT * FROM main_articles   WHERE main_articles.article_id = main_results.comment_id)'''
+        conn.execute(sql)
+
+        sql = '''UPDATE main_results SET (comments_raw) = (SELECT main_comments.comment_raw
+            FROM main_comments  WHERE main_comments.article_id = main_results.comment_id) WHERE
+            EXISTS( SELECT * FROM main_comments     WHERE   main_comments.article_id = main_results.comment_id )'''
+        conn.execute(sql)
+
+        conn.commit()
 
         return results
 
-    def run_query(self, query, query_run_count, results_directory):
+
+
+
+
+
+    def run_query(self, query, query_run_count, results_directory, query_run_name):
         query_result = dict()
         doc_category_count = dict()  # key: doc_id, val: cat_counts_dict
         term_count = 0
@@ -206,6 +312,7 @@ class QueryProcessor:
                     keyword_type = self.keyword_types.get(term)
                     #  print("keyword Type: {}".format(keyword_type))
             else:
+
                 weight = 1
                 #  print('Term: {0} Weight:{1}'.format(term, weight))
             weight_string = term + ',' + str(weight*100) + '\n'
@@ -233,18 +340,21 @@ class QueryProcessor:
 
                     if doc_id in query_result:  # this document has already been scored once
                         query_result[doc_id] += score
+
                     else:
                         query_result[doc_id] = score
+                    # print('query result:', query_result)
                     # print('\t docID: {0} Term: {3}  Freq: {1} Score:  {2}'.format(doc_id, freq, score, term))
-                    detail_string = str(doc_id) + ',' + str(freq) + ',' + str(score) + ',' + term + ',' \
-                                    + str(weight) + ',' + keyword_type
+                    detail_string = 'docid: '+  str(doc_id) + ', Freq ' + str(freq) + ', Score: ' + str(score) + ', Term: ' + term + ',Weight: ' \
+                                    + str(weight) + ',kw_type' + keyword_type
+                    # print("run query - detail string:", detail_string)
                     self.write_details_file(results_directory, query_run_count, detail_string)
 
             # dump cat_count_dicts
         # print('=============================================')
         #for doc_id, cat_count_dict in doc_category_count.items():
-            # print('Doc #:', doc_id)
-            # print(cat_count_dict)
+        #    print('Doc #:', doc_id)
+        #    print(cat_count_dict)
 
         #	threat_found = False
         #	for key, count in sorted(cat_count_dict.items(), reverse=True, key=lambda tup: tup[1]):
@@ -261,5 +371,14 @@ class QueryProcessor:
             # 		break
             # 	i += 1
             # print('\n')
+        #sorted_x = sorted(result.items(), key=operator.itemgetter(1))
+        #sorted_x.reverse()
+        #j = 0
+        #for i in sorted_x[:100]:
+        #    j += 1
+        #    max_score = i[1]
+        ##    break
+        #    index += 1
+
         self.write_category_file(results_directory, query_run_count, doc_category_count)
         return query_result

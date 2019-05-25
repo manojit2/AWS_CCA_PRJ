@@ -1,20 +1,21 @@
 <head>
-
     <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+{% load static %}
+    <link href="{% static 'main/css/materialize.css' %}" rel="stylesheet">
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-            
+    {% load static %}
+    <link href="{% static 'main/css/materialize.css' %}" rel="stylesheet">
 </head>
 
 <body>
 
-
-
+{% load static %}
+<link href="{% static 'main/css/materialize.css' %}" rel="stylesheet">
   <nav class="nav-extended">
     <div class="nav-wrapper">
-      <a href="/" class="brand-logo">Logo</a>
+      <a href="/" class="brand-logo">&nbsp Project Light</a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul id="nav-mobile" class="right hide-on-med-and-down">
         <li><a href="sass.html">About</a></li>
@@ -28,9 +29,9 @@
         <li class="tab"><a href="query_runs">View Runs</a></li>
         <li class="tab"><a class="active" href="q">Setup Query</a></li>
         <li class="tab"><a class="active" href="keywords">View Keywords</a></li>
-        <li class="tab disabled"><a href="twitter_imports">Customize Keyword</a></li>
+        <li class="tab"><a href="twitter_imports">Customize Keyword</a></li>
         <li class="tab"><a href="twitter_imports">Import Twitter</a></li>
-        <li class="tab disabled"><a href="hashtags">Define Hashtags</a></li>
+        <li class="tab"><a href="hashtags">Define Hashtags</a></li>
         <li class="tab disabled"><a href="articles">Define Articles</a></li>
       </ul>
     </div>

@@ -28,7 +28,8 @@ urlpatterns = [
     path("queries/", views.queries, name="queries"),
     path("query_runs/", views.query_runs, name="query_runs"),
     path("results/", views.results, name="results"),
+    path("comments/", views.comments, name="comments"),
     path("twitter_imports/", views.twitter_imports, name="twitter_imports"),
     path("register/", views.register, name="register"),
-    
+
 ]

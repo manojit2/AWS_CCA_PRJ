@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Tutorial, Keyword_Master, Keyword_Categories, Queries, Articles, Comments, Profiles, Query_Runs, Rank,Sources, Source_Types
-from .models import Hashtags,Tweets, Replies, Twitter_Imports
+from .models import Tutorial, Keyword_Master, Keyword_Categories, Queries, Articles, Comments, Profiles, Query_Runs, \
+	Results,Sources, Source_Types
+from .models import Hashtags, Tweets, Replies, Twitter_Imports
 
 
 class TutorialAdmin(admin.ModelAdmin):
@@ -26,7 +27,7 @@ admin.site.register(Articles)
 admin.site.register(Comments)
 admin.site.register(Profiles)
 admin.site.register(Query_Runs)
-admin.site.register(Rank)
+admin.site.register(Results)
 admin.site.register(Hashtags)
 admin.site.register(Tweets)
 admin.site.register(Replies)

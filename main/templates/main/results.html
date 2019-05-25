@@ -5,18 +5,26 @@
   <div class="row">
   	<table>
   		<tr>
-  			<th>Query ID</th>
-  			<th>Runtime</th>
- 			<th>Query</th>
+  			<th>Result ID</th>
+  			<th>Query Run Id </th>
+ 			<th>Ranking</th>
+			<th>Score</th>
+			<th>User Link</th>
+			<th>Comments</th>
       <th>Link</th>
   		</tr>
-  	<div class="responsive-table container">
-  	{% for run in query_runs%}
+  	<div class="responsive-table container" style="overflow:hidden;text-overflow: ellipsis; ">
+  	{% for result in results%}
   
-        <tr>
-        	<td>{{run.id}} </td>
-        	<td>{{run.query_runtime}}</td>
-        	<td>{{run.query_text}}</td>
+        <tr style = "vertical-align: top">
+        	<td  style = "vertical-align: top">{{result.result_id}} </td>
+        	<td  style = "vertical-align: top">{{result.query_run_id_id}}</td>
+        	<td  style = "vertical-align: top">{{result.ranking}}</td>
+			<td  style = "vertical-align: top" >{{result.rank_score}}</td>
+			<td  style = "vertical-align: top"><a href="http://">{{result.url}}</a></td>
+			<td  style = "vertical-align: top">{{result.comments_raw}}</td>
+
+
           <td><a href="https://twitter.com/WSJ/status/1117880290213597185">Link</a></td>
 		</tr>
         {% endfor %}
@@ -26,3 +34,4 @@
   </div>
 
 {% endblock %}
+

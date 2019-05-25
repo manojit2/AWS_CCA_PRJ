@@ -6,16 +6,20 @@
     <div class="col s12 m6 l4">
       <div class="card blue-grey darken-1">
         <div class="card-content white-text">
-          <span class="card-title">Query #:{{run.query_id}} -- @ {{run.query_runtime}}</span>
+          <span class="card-title">Query # : &nbsp &nbsp <strong>{{run.query_short_name}}</strong>
+            <p>@ {{run.query_short_desc}}</p><p>@ {{run.query_runtime}}</p></span>
 
+            <table class = white-text>
+              <tr><td>Matching docs</td><td>{{run.doc_count}}</td><td>#terms</td><td>{{run.term_count}}</td></tr>
+              <tr><td>Max Score</td><td>{{run.max_score}}</td><td>Avg Score</td><td>{{run.avg_score}}</td></tr>
+
+
+            </table>
 			<p>{{run.query_text}}</p>
 
         </div>
         <div class="card-action">
-          <a href="#">View Results</a>
-          <a href="#">View Keywords / Weights</a>
-          <a href="#">Delete Result</a>
-          <a href="q.html">Run Again</a>
+          <a href="results">View Results</a>
 
 
         </div>

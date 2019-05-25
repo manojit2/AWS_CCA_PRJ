@@ -2,17 +2,21 @@
 import re
 from ast import literal_eval
 import sqlite3
-
+from sqlite3 import Error
+import string
 
 # read in comments for analysis
-class CorpusParser:
+class CorpusParser_old:
 
 	def __init__(self, filename):
 		self.filename = filename
 		self.regex = re.compile('^#\s*\d+')
 		self.corpus = dict()
 		self.db_corpus = dict()
-		self.db_name = 'pldb.db'
+		# self.db_name = 'pldb.db'
+		# changed database to reference the Django db
+		self.db_name = '..\db.sqlite3'
+
 
 	def parse(self):
 		#with open(self.filename) as f:
@@ -35,25 +39,85 @@ class CorpusParser:
 			#self.corpus[docid] = text
 			# print(self.corpus)
 		print("==DB:  comments content==")
-		conn = sqlite3.connect(self.db_name)
-		c = conn.cursor()
-		c.execute("select comment_id,comment_raw from comments")
+		try:
+			conn = sqlite3.connect(self.db_name)
+			c = conn.cursor()
+		except Error as e:
+			print(e)
+
+		#c.execute("select comment_id,comment_raw from main_comments")
+		c.execute("select article_id, comment_clean from main_comments")
 		data = c.fetchall()
 		db_work = {}
 		for row in data:
 			docid = str(row[0])
-			comments = row[1].split()
+			wrk_str = filter(lambda x: x in string.printable, row[1])
+			comments = wrk_str.split().lower()
 			#print(docid," ",comments)
 			#db_work[docid] = comments
 			self.corpus[docid] = comments
-		print(self.corpus)
+		#print(self.corpus)
 
 
 	def get_corpus(self):
 		return self.corpus
 
 # read in the current terms we want to search for in the comments
+class CorpusParser:
 
+	def __init__(self, db_name):
+		self.corpus = dict()
+		self.db_corpus = dict()
+		# changed database to reference the Django db
+		#self.db_name = '..\db.sqlite3'
+		self.db_name = db_name
+
+
+
+	def parse(self):
+		#with open(self.filename) as f:
+		#	s = ''.join(f.readlines())
+		# blobs = s.split('#')[1:]
+		#blobs = s.split('##')[1:]
+		#print("==TEXT: comments content==")
+		#for x in blobs:
+			#text = x.split()
+			# todo: add stop word removal
+			# todo: perform stemming
+			# todo: add in min / max word sizes
+
+			# print('text: {0}'.format(text))
+			#docid = text.pop(0)
+
+			#print(docid)
+
+			#print(text)
+			#self.corpus[docid] = text
+			# print(self.corpus)
+		print("==DB:  comments content==")
+		try:
+			conn = sqlite3.connect(self.db_name)
+			c = conn.cursor()
+		except Error as e:
+			print(e)
+
+		#c.execute("select comment_id,comment_raw from main_comments")
+		c.execute("select article_id, comment_clean from main_comments")
+		data = c.fetchall()
+		db_work = {}
+		for row in data:
+			docid = str(row[0])
+			comments = row[1].split()
+			#db_work[docid] = comments
+			self.corpus[docid] = comments
+			#print(self.corpus[docid]," \t ")
+		#print(self.corpus)
+
+
+	def get_corpus(self):
+		return self.corpus
+
+# read in the current terms we want to search for in the comments
 class QueryParser:
 
 	def __init__(self, db_name):
@@ -62,6 +126,10 @@ class QueryParser:
 		# db_name = 'pldb.db'
 		#self.db_name = 'pldb.db'
 		self.db_name = '../db.sqlite3'
+
+	def create_connection(self, db_name):
+		conn = sqlite3.connect(self.db_name)
+		return conn
 
 	def parse(self):
 		#print("==text==")
@@ -73,7 +141,6 @@ class QueryParser:
 		#for row in self.queries:
 		#	print(row)
 		#print(self.queries)
-		print('==DB==')
 		conn = sqlite3.connect(self.db_name)
 		c = conn.cursor()
 		c.execute("select query from main_queries")
@@ -81,7 +148,7 @@ class QueryParser:
 		for row in data:
 			query = row[0].split()
 			self.queries.append(query)
-		print(self.queries)
+		#print(self.queries)
 
 
 	def get_queries(self):
@@ -182,7 +249,7 @@ class KeywordTypeParser_old:
 		return self.keywords_types
 
 # pull in source articles that are the parent to the comments
-class ArticleParser:
+class ArticleParser_old:
 
 	def __init__(self, filename):
 		self.filename = filename
@@ -209,6 +276,34 @@ class ArticleParser:
 
 	def get_articles(self):
 		return self.articles
+
+class ArticleParser:
+
+	def __init__(self, db_name):
+		self.db_name = db_name
+		self.articles = {}
+
+
+	def parse(self):
+
+		work_dict = {}
+		conn = sqlite3.connect(self.db_name)
+		c = conn.cursor()
+		c.execute("select article_id, source_url, author, title, article_date from main_articles")
+		data = c.fetchall()
+		for row in data:
+			work_dict = {}
+			docid = row[0]
+			title = row[2]
+			source = 1
+			pub_date = row[4]
+			pub_url = row[1]
+			work_dict[docid] = {"title": title, "source": source, "pub_date": pub_date, "pub_url": pub_url}
+			self.articles = work_dict
+
+	def get_articles(self):
+		return self.articles
+
 
 
 if __name__ == '__main__':

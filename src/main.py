@@ -14,6 +14,7 @@ import sys
 import sqlite3
 import time
 import datetime
+
 import random
 
 #default_db_name = 'pldb.db'  #project light db
@@ -31,9 +32,9 @@ def main():
     run_results_file = '../results/run_results.txt'  # this is the file used to write master activity
     #qp = QueryParser(filename='../text/queries.txt')
     qp = QueryParser(db_name=default_db_name)
-    cp = CorpusParser(filename='../text/comments.txt')
+    cp = CorpusParser(db_name=default_db_name)
     kw = KeywordParser(db_name=default_db_name)
-    ar = ArticleParser(filename='../text/articles.txt')
+    ar = ArticleParser(db_name=default_db_name)
     kwt = KeywordTypeParser(db_name=default_db_name)
 
 
@@ -58,7 +59,7 @@ def main():
     run_date = datetime.datetime.now()
 
 
-    proc = QueryProcessor(queries, corpus, keywords, keyword_types, run_date, run_results_file, articles)
+    proc = QueryProcessor(queries, corpus, keywords, keyword_types, run_date, run_results_file, articles, default_db_name)
     results = proc.run()
     qid = 0
     data = {}
@@ -75,14 +76,14 @@ def main():
             j += 1
             score = i[1]
             docid = i[0]
-            title = articles[int(i[0])]['title'].rstrip()
-            pub_url = articles[int(i[0])]['pub_url'].rstrip()
-            pub_date = articles[int(i[0])]['pub_date'].rstrip()
-            source = articles[int(i[0])]['source'].rstrip()
-            data.update({'docId': i[0], 'rank_score': j, 'Score': score, 'source': source, 'title': title,
-            						'pub_date': pub_date})
+            ##   title = articles[int(i[0])]['title'].rstrip()
+         ##   pub_url = articles[int(i[0])]['pub_url'].rstrip()
+         ##   pub_date = articles[int(i[0])]['pub_date'].rstrip()
+         ##   source = articles[int(i[0])]['source'].rstrip()
+         ##   data.update({'docId': i[0], 'rank_score': j, 'Score': score, 'source': source, 'title': title,
+         ##   						'pub_date': pub_date})
 
-            out_string = docid + ', ' + str(j) + ', '+str(round(score, 4))+', "' + title + '", "' + source + '", "'+pub_date + '", "' + pub_url
+         ##   out_string = docid + ', ' + str(j) + ', '+str(round(score, 4))+', "' + title + '", "' + source + '", "'+pub_date + '", "' + pub_url
            # print(out_string)
            # with open('../results/rankings.csv', 'a') as f:
            #     f.write(out_string)
